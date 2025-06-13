@@ -6,16 +6,11 @@
     <title>{% block title %}YourAnalyst{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    {% block styles %}
+    {% endblock %}
 </head>
 <body>
-     <main>
-        {%block content%}
-        {%endblock%}
-     </main>
-
-
-     <footer>
-        <p>&copy; 2025 YourAnalyst. All rights reserved.</p>
-    </footer>
+    {%block content%}
+    {%endblock%}
 </body>
 </html>
