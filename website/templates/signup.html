@@ -6,13 +6,16 @@
 <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
 {%endblock%}
 {% block content %}
+<div id="vanta-bg">
+    <!--Vanta BG-->
+</div>
 <div class="main-container">
     <div class="heading">
 <h1>YourAnalyst</h1>
 </div>
 <div class="login-container">
     <form action="" method="POST">
-        <h1>Login</h1>
+        <h1>SignUp</h1>
         <div class="input-box">
             <input type="text" id="username" placeholder="Username" name="username" required>
             <i class='bx  bxs-user'></i> 
@@ -22,16 +25,31 @@
         <i class='bx  bxs-lock'></i> 
         </div>
 
-        <div class="remember-forgot">
-        <label><input type="checkbox">Remember me</label>
-        <a href="#">Forgot password?</a>
-        </div> 
-        
-        <button type="submit" class="btn">Login</button>
-        <div class="register-link">
-            <p>Don't have an account? <a href="">Register</a></p>
+        <div class="input-box">
+        <input type="password" id="password" placeholder="Confirm Password" name="password" required>
         </div>
+
+       <div class="input-box">
+       <input type="email" id="email" placeholder="Enter your email" name="email" required>
+        </div>
+        <button type="submit" class="btn">SignUp</button>
     </form>
 </div>
 </div>
+{%block scripts%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.dots.min.js"></script>
+<script>
+VANTA.DOTS({
+  el: "#vanta-bg",
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: 200.00,
+  minWidth: 200.00,
+  scale: 1.00,
+  scaleMobile: 1.00
+})
+</script>
+{%endblock%}
 {% endblock %}

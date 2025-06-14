@@ -12,9 +12,15 @@ body{
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: url('../img/background-image.jpg');
 }
-
+#vanta-bg{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
 .main-container {
     display: flex;
     flex-direction: column;
@@ -23,12 +29,12 @@ body{
     align-items: center;
     padding-top: 40px;
     position: relative;
+    z-index:1;
 }
-
 .heading {
     font-weight: 800;
     color: white;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
 }
 
 .login-container{
