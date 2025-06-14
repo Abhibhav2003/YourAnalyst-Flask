@@ -31,11 +31,6 @@ body{
     position: relative;
     z-index:1;
 }
-.heading {
-    font-weight: 800;
-    color: white;
-    margin-bottom: 10px;
-}
 
 .login-container{
     width:420px;
