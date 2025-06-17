@@ -9,13 +9,14 @@ auth = Blueprint('auth',__name__)
 
 @auth.route('/login', methods=["GET", "POST"])
 def login():
+   if current_user.is_authenticated:
+        return redirect(url_for('views.home'))
    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
         remember = request.form.get('remember')
         user = User.query.filter_by(email=email).first()
-
         if user:
             if user.username != username:
                 flash('Incorrect Username', category='error')
