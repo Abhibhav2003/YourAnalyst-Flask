@@ -20,7 +20,7 @@ def login():
             if user.username != username:
                 flash('Incorrect Username', category='error')
             elif check_password_hash(user.password, password):
-                flash('Logged In Successfully', category='success')
+                flash(f'Welcome, {user.username}', category='success')
                 if remember:
                   login_user(user,remember=True)
                 else:

@@ -1,0 +1,52 @@
+body {
+    background-color: rgb(24, 23, 23);
+    margin: 0;
+    padding: 0;
+}
+
+.intro {
+    font-weight: 600;
+    font-size: 24px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    padding: 40px 20px;
+    line-height: 1.6;
+}
+.hm-btn {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(201, 130, 255, 0.7), rgba(255, 92, 177, 0.7));
+    border: none;
+    border-radius: 10px;
+    padding: 12px 36px;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 8px 20px rgba(255, 92, 177, 0.3);
+    margin-left: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.hm-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 92, 177, 0.9), rgba(201, 130, 255, 0.9));
+    box-shadow: 0 12px 25px rgba(255, 92, 177, 0.5);
+    transform: translateY(-2px);
+}
+
+#vanta-bg {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+.cursor {
+    font-size: 24px;
+    animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}

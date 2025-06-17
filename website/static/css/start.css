@@ -45,7 +45,7 @@ body {
     margin-top: 20px;    
 }
 
-.btn {
+.st-btn {
     padding: 15px 50px;
     background: linear-gradient(145deg, #2c5364, #203a43, #0f2027);
     color: white;
@@ -58,7 +58,7 @@ body {
     transition:transform 0.3s;
 }
 
-.btn:hover {
+.st-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }

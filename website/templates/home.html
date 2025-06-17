@@ -1,5 +1,35 @@
 {% extends 'base.html' %}
 
+{%block styles%}
+<link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+{%endblock%}
+{% include "nav.html" %}
+
 {%block content%}
-Hi, {{message}} Welcome!
+<div id="vanta-bg">
+    <!--Vanta BG-->
+</div>
+<pre class="intro"> 
+    Welcome to YourAnalyst
+
+    Your One Stop Solution to Fast and Effective Data Analysis <span class="cursor">|</span>
+</pre>
+<button class='hm-btn'>Explore</button>
+{%endblock%}
+
+{%block scripts%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+<script>
+VANTA.NET({
+  el: "#vanta-bg",
+  mouseControls: true,
+  touchControls: true,
+  gyroControls: false,
+  minHeight: 200.00,
+  minWidth: 200.00,
+  scale: 1.00,
+  scaleMobile: 1.00
+})
+</script>
 {%endblock%}

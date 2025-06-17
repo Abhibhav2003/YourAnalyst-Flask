@@ -9,4 +9,4 @@ def start():
 @login_required
 @views.route('/home')
 def home():
-    return render_template('home.html',message=current_user.username)
+    return render_template('home.html')
