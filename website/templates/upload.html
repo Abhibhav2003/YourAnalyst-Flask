@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+{% endblock %}
+
+{% block nav %}
+{% include 'nav.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+  <h1 class="top-heading">Upload Your Files or Scrape From Web</h1>
+    <div class="upload-box">
+        <h1 class="main-heading">Get Started with Your Data</h1>
+        <p class="subtext">Choose a method to import your dataset</p>
+
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" onclick="showForm('scrape')">Scrape from URL</button>
+            <button class="toggle-btn" onclick="showForm('upload')">Upload from System</button>
+        </div>
+
+        <div id="scrape-form" class="form-section">
+            <h2 class="option-title">Scrape from a Website</h2>
+            <input type="url" placeholder="Enter website URL" class="input-field">
+            <button class="action-btn">Scrape</button>
+        </div>
+
+        <div id="upload-form" class="form-section" style="display: none;">
+            <h2 class="option-title">Upload a File</h2>
+            <input type="file" class="input-field">
+            <button class="action-btn">Upload</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showForm(type) {
+    const scrapeForm = document.getElementById('scrape-form');
+    const uploadForm = document.getElementById('upload-form');
+    const buttons = document.querySelectorAll('.toggle-btn');
+
+    if (type === 'scrape') {
+        scrapeForm.style.display = 'block';
+        uploadForm.style.display = 'none';
+    } 
+    else {
+        scrapeForm.style.display = 'none';
+        uploadForm.style.display = 'block';
+    }
+
+    buttons.forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.toggle-btn[onclick="showForm('${type}')"]`).classList.add('active');
+}
+</script>
+{% endblock %}

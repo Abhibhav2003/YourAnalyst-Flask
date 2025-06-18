@@ -4,8 +4,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 {% endblock %}
 
-{% block content %}
+{%block nav%}
 {% include "nav.html" %}
+{%endblock%}
+{% block content %}
 <div id="vanta-bg"></div>
 <pre class="intro"> 
     Welcome to YourAnalyst
@@ -14,7 +16,7 @@
 </pre>
 <div class="btn-group">
     <a href="#sec-1"><button class="hm-btn1">Explore</button></a>
-    <button class="hm-btn2">Get Started -></button>  
+    <a href="{{url_for('views.upload')}}"><button class="hm-btn2">Get Started -></button></a>  
 </div>
 
 <section id='sec-1'class="sec-1">

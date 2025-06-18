@@ -10,3 +10,8 @@ def start():
 @views.route('/home')
 def home():
     return render_template('home.html')
+
+@login_required
+@views.route('/upload')
+def upload():
+    return render_template('upload.html')
