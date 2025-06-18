@@ -20,17 +20,17 @@
             <button class="toggle-btn" onclick="showForm('upload')">Upload from System</button>
         </div>
 
-        <div id="scrape-form" class="form-section">
+        <form method="" action="" id="scrape-form" class="form-section" enctype="mutlipart/form-data">
             <h2 class="option-title">Scrape from a Website</h2>
-            <input type="url" placeholder="Enter website URL" class="input-field">
-            <button class="action-btn">Scrape</button>
-        </div>
+            <input type="url" name="scrape-url" placeholder="Enter website URL" class="input-field" required>
+            <input class="action-btn" type="submit"value="Scrape">
+        </form>
 
-        <div id="upload-form" class="form-section" style="display: none;">
+        <form method="POST" action="{{url_for('views.display')}}" id="upload-form" class="form-section" style="display: none;"enctype="multipart/form-data">
             <h2 class="option-title">Upload a File</h2>
-            <input type="file" class="input-field">
-            <button class="action-btn">Upload</button>
-        </div>
+            <input type="file" name="upload-file" class="input-field" accept=".csv, .txt, .xlsx" required>
+            <input class="action-btn" type="submit"value="Upload">
+        </form>
     </div>
 </div>
 {% endblock %}

@@ -7,7 +7,7 @@ from flask_login import LoginManager
 
 load_dotenv()
 db = SQLAlchemy()
-DB_NAME = "user_credentials.db"
+DB_NAME = "database.db"
 
 
 def create_app():
