@@ -20,7 +20,7 @@
             <button class="toggle-btn" onclick="showForm('upload')">Upload from System</button>
         </div>
 
-        <form method="" action="" id="scrape-form" class="form-section" enctype="mutlipart/form-data">
+        <form method="POST" action="{{url_for('views.display')}}" id="scrape-form" class="form-section" enctype="mutlipart/form-data">
             <h2 class="option-title">Scrape from a Website</h2>
             <input type="url" name="scrape-url" placeholder="Enter website URL" class="input-field" required>
             <input class="action-btn" type="submit"value="Scrape">

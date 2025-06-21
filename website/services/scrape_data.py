@@ -18,6 +18,17 @@ def Extract(URL, HEADERS={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x6
     else:
         return flash(webpage.status_code,category='error')
 
+def CreateDf(result):
+    dict_dfs = {}
+    for k in result:
+        headers, rows = result[k]
+        if headers: 
+            df = pd.DataFrame(rows, columns = headers)
+        else: 
+            df = pd.DataFrame(rows)
+        dict_dfs[k] = df
+    return dict_dfs
+
 def Scrape(url):
     result = {}
     m = 1
@@ -37,16 +48,5 @@ def Scrape(url):
             index = "table" + str(m)
             result[index] = (headers, rows)
             m += 1
-    return result
-
-def CreateDf(result):
-    dict_dfs = {}
-    for k in result:
-        headers, rows = result[k]
-        if headers: 
-            df = pd.DataFrame(rows, columns = headers)
-        else: 
-            df = pd.DataFrame(rows)
-        dict_dfs[k] = df
-    return dict_dfs
-
+    dfs = CreateDf(result)
+    return dfs
