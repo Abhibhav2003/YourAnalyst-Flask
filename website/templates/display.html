@@ -12,12 +12,25 @@
 {%block content%}
 <div style="overflow:hidden;background-color: #121212;min-height:100vh;color:#fff;">
 <h2 style="text-align:center;margin-top:40px;">Uploaded File Preview</h2>
-<div class="mb-3 me-4 text-end">
-<a href="{{url_for('views.analyse')}}"><button class="btn btn-primary">Analyse →</button></a>
-</div>
-<div>
-    {{ table|safe }}
-</div>
+
+<form method="POST" action="{{ url_for('views.analyse') }}">
+    <div class="d-flex justify-content-end mt-3 me-4">
+        <button type="submit" class="btn btn-primary">Analyse →</button>
+    </div>
+    {% for table in tables %}
+        <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" name="table{{ loop.index0 }}" id="table{{ loop.index0 }}">
+            <label class="form-check-label mb-2" for="table{{ loop.index0 }}">
+                Table {{ loop.index }}
+            </label>
+            <div class="table-responsive">
+                {{ table|safe }}
+            </div>
+        </div>
+    {% endfor %}
+</form>
+
+
 </div>
 {%block scripts%}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -33,5 +46,6 @@
         });
     });
 </script>
+
 {%endblock%}
 {%endblock%}
