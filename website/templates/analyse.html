@@ -1,13 +1,37 @@
-{%extends 'base.html'%}
+{% extends 'base.html' %}
 
-{%block styles%}
-{%endblock%}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analyse.css') }}">
+{% endblock %}
 
+{% block nav %}
+{% include 'nav.html' %}
+{% endblock %}
 
-{%block content%}
-<h1>hey This is the Analysis Page for Automatic Analysis</h1>
-{%endblock%}
+{% block content %}
 
+<div class="analyse-container">
 
+    <div class="header">
+        <h2>Your AI-Generated Analysis</h2>
+        <p>You can download the AI-generated report or proceed with manual analysis.</p>
+    </div>
+
+    <div class="button-group-frm">
+        <form method="POST" action="{{ url_for('views.download_report') }}">
+            <textarea name="response" style="display: none;">{{ response }}</textarea>
+            <button type="submit" class="btn-dwnld">Download Report</button>
+        </form>
+
+        <a href="{{url_for('views.manual_analysis')}}" class="btn-manl">Do Analysis</a>
+    </div>
+
+</div>
+{% endblock %}
 {%block scripts%}
+<script>
+  document.querySelector("form").addEventListener("submit", function () {
+    document.getElementById("loading-overlay").style.display = "flex";
+  });
+</script>
 {%endblock%}

@@ -1,8 +1,11 @@
-from flask import Blueprint,render_template,request,redirect,flash,session
+from flask import Blueprint,send_file,render_template,request,redirect,flash,session
 from flask_login import login_required,current_user
 import pandas as pd
 from website.services import scrape_data as scrp
+from website.services import ai_analysis as ai
 import pickle
+import json
+import io
 import base64
 
 views = Blueprint('views',__name__)
@@ -50,7 +53,6 @@ def display():
 
         session.clear()
         session['tables'] = base64.b64encode(pickle.dumps(dfs)).decode('utf-8')
-        print(pickle.loads(base64.b64decode(session.get('tables'))))
 
         table_list = [df.to_html(classes="table table-dark table-striped table-bordered data-table", index=False) for df in dfs.values()]
         return render_template("display.html", tables=table_list)
@@ -63,10 +65,10 @@ def display():
 @login_required
 def analyse():
     if request.method == 'POST':
-        selected_tables = [key for key in request.form if key.startswith("table")]
+        selected_key = request.form.get("selected_table")
 
-        if not selected_tables:
-            flash("Please select at least one table.", category="error")
+        if not selected_key:
+            flash("Please select a table.", category="error")
             return redirect('/display')
 
         encoded_data = session.get('tables')
@@ -76,15 +78,38 @@ def analyse():
 
         dfs = pickle.loads(base64.b64decode(encoded_data))
 
-        # Ensure selected checkboxes match stored keys
-        selected_dfs = [dfs[k] for k in dfs if k in selected_tables]
-
-        if not selected_dfs:
-            flash("No matching tables found.", category="error")
+        if selected_key not in dfs:
+            flash("Selected table not found.", category="error")
             return redirect('/display')
 
-        # Just showing the first table for now
-        return selected_dfs[0].to_html(index=False)
+        df = dfs[selected_key]
+        json_str = df.to_json(orient='records')
+        response_text = ai.enter_data("Analyse this json data",json_str)
+        return render_template("analyse.html", response = response_text)
 
     flash('Click on Analyse button to proceed', category='error')
     return redirect('/display')
+
+
+@views.route('/download_report', methods=['POST'])
+def download_report():
+    response_text = request.form.get('response')
+
+    if not response_text:
+        flash("No analysis found to download.", category="error")
+        return redirect('/analyse')
+
+    buffer = io.BytesIO()
+    buffer.write(response_text.encode('utf-8'))
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name='analysis_report.md',
+        mimetype='text/plain'
+    )
+
+@views.route('/manual-analysis',methods=['GET','POST'])
+def manual_analysis():
+    return render_template('manual_analysis.html')

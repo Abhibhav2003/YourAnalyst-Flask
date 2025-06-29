@@ -19,7 +19,7 @@
     </div>
     {% for table in tables %}
         <div class="form-check mb-4">
-            <input class="form-check-input" type="checkbox" name="table{{ loop.index0 }}" id="table{{ loop.index0 }}">
+            <input class="form-check-input" type="radio" name="selected_table" id="table{{ loop.index0 }}" value="table{{ loop.index0 }}">
             <label class="form-check-label mb-2" for="table{{ loop.index0 }}">
                 Table {{ loop.index }}
             </label>
@@ -29,8 +29,6 @@
         </div>
     {% endfor %}
 </form>
-
-
 </div>
 {%block scripts%}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

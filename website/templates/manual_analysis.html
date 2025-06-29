@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manual_analysis.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Manual Data Analysis Dashboard</h1>
+
+    <!-- Flash Messages Section -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <form method="POST" class="analysis-form">
+        <!-- Column Selection -->
+        <div class="card">
+            <h2>Select Columns for Analysis</h2>
+            <div class="checkbox-group">
+                {% for col in columns %}
+                <label class="checkbox-label">
+                    <input type="checkbox" name="columns" value="{{ col }}" {% if col in selected_columns %}checked{% endif %}>
+                    {{ col }}
+                </label>
+                {% endfor %}
+                {% if not columns %}
+                <p class="no-data">No columns available. Please upload data first.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Operations -->
+        <div class="card">
+            <h2>Operations</h2>
+            <div class="button-group">
+                <h3>Data Cleaning</h3>
+                <button type="submit" name="action" value="summary" class="btn btn-primary">Summary</button>
+                <button type="submit" name="action" value="drop_nulls" class="btn btn-primary">Drop Nulls</button>
+                <button type="submit" name="action" value="fill_nulls_mean" class="btn btn-primary">Fill Nulls (Mean)</button>
+                <button type="submit" name="action" value="remove_duplicates" class="btn btn-primary">Remove Duplicates</button>
+            </div>
+            <div class="button-group">
+                <h3>Transformations</h3>
+                <button type="submit" name="action" value="normalize" class="btn btn-primary">Normalize</button>
+                <button type="submit" name="action" value="standardize" class="btn btn-primary">Standardize</button>
+                <button type="submit" name="action" value="encode_categorical" class="btn btn-primary">Encode Categorical</button>
+                <button type="submit" name="action" value="pca" class="btn btn-primary">Apply PCA</button>
+                <button type="submit" name="action" value="cluster" class="btn btn-primary">Apply Clustering</button>
+            </div>
+            <div class="button-group">
+                <h3>Statistical Analysis</h3>
+                <button type="submit" name="action" value="basic_stats" class="btn btn-primary">Basic Stats</button>
+                <button type="submit" name="action" value="outliers" class="btn btn-primary">Detect Outliers</button>
+                <button type="submit" name="action" value="confidence" class="btn btn-primary">Confidence Intervals</button>
+            </div>
+            <div class="button-group">
+                <h3>Visualizations</h3>
+                <button type="submit" name="action" value="histogram" class="btn btn-visual">Histogram</button>
+                <button type="submit" name="action" value="scatter" class="btn btn-visual">Scatter Plot</button>
+                <button type="submit" name="action" value="bar" class="btn btn-visual">Bar Plot</button>
+                <button type="submit" name="action" value="line" class="btn btn-visual">Line Plot</button>
+            </div>
+            <div class="button-group">
+                <h3>History</h3>
+                <button type="submit" name="action" value="undo" class="btn btn-undo">Undo Last Action</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Data Preview -->
+    <div class="card">
+        <h2>Data Preview (First 10 Rows)</h2>
+        <div class="table-container">
+            {% if table %}
+            {{ table | safe }}
+            {% else %}
+            <p class="no-data">No data available. Please upload a file to view the table.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Visualizations -->
+    {% if charts %}
+    <div class="card">
+        <h2>Visualizations</h2>
+        <div class="chart-container">
+            {% for chart in charts %}
+            <div class="chart-item">
+                <h3>{{ chart.type }}</h3>
+                <img src="data:image/png;base64,{{ chart.image }}" alt="{{ chart.type }}" class="chart-image">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Results -->
+    {% if results %}
+    {% for name, result in results.items() %}
+    <div class="card result-box">
+        <h2>{{ name }}</h2>
+        {% if result | string and result.startswith('<') %}
+        {{ result | safe }}
+        {% else %}
+        <pre>{{ result | tojson(indent=2) }}</pre>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card result-box">
+        <p class="no-data">No results available. Perform an analysis to view results.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
