@@ -7,17 +7,6 @@
 <div class="dashboard-container">
     <h1>Manual Data Analysis Dashboard</h1>
 
-    <!-- Flash Messages Section -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="flash-container">
-        {% for category, message in messages %}
-        <div class="flash-message {{ category }}">{{ message }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
-
     <form method="POST" class="analysis-form">
         <!-- Column Selection -->
         <div class="card">
@@ -57,7 +46,7 @@
                 <h3>Statistical Analysis</h3>
                 <button type="submit" name="action" value="basic_stats" class="btn btn-primary">Basic Stats</button>
                 <button type="submit" name="action" value="outliers" class="btn btn-primary">Detect Outliers</button>
-                <button type="submit" name="action" value="confidence" class="btn btn-primary">Confidence Intervals</button>
+                <button type="submit" name="action" value="confidence" class="btn btn-primary">Confidence & Covariance</button>
             </div>
             <div class="button-group">
                 <h3>Visualizations</h3>
@@ -65,6 +54,22 @@
                 <button type="submit" name="action" value="scatter" class="btn btn-visual">Scatter Plot</button>
                 <button type="submit" name="action" value="bar" class="btn btn-visual">Bar Plot</button>
                 <button type="submit" name="action" value="line" class="btn btn-visual">Line Plot</button>
+            </div>
+            <div class="button-group">
+                <h3>Column Type Conversion</h3>
+                <label for="convert_column">Column:</label>
+                <select name="convert_column" id="convert_column" class="btn-dropdown">
+                    {% for col in columns %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+                <label for="convert_dtype">New Type:</label>
+                <select name="convert_dtype" id="convert_dtype" class="btn-dropdown">
+                    <option value="int">Integer</option>
+                    <option value="float">Float</option>
+                    <option value="str">String</option>
+                </select>
+                <button type="submit" name="action" value="change_dtype" class="btn btn-primary">Change Type</button>
             </div>
             <div class="button-group">
                 <h3>History</h3>
@@ -105,10 +110,11 @@
     {% for name, result in results.items() %}
     <div class="card result-box">
         <h2>{{ name }}</h2>
-        {% if result | string and result.startswith('<') %}
-        {{ result | safe }}
+        {% set result_str = result | string %}
+        {% if result_str.startswith('<') %}
+            {{ result | safe }}
         {% else %}
-        <pre>{{ result | tojson(indent=2) }}</pre>
+            <pre>{{ result | tojson(indent=2) }}</pre>
         {% endif %}
     </div>
     {% endfor %}
