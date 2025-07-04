@@ -53,9 +53,7 @@ def signup():
           flash("Username must be greater than or equal to 3 characters",category="error")
        elif password != confirm_password:
           flash("Passwords don't match",category="error")
-       elif len(password) < 8:
-          flash("Password must be of 8 characters",category="error")
-       elif len(password) > 8:
+       elif len(password) <= 8:
           flash("Password must be of 8 characters",category="error")
        else:
           new_user = User(email=email,username=username,password=generate_password_hash(password,method='pbkdf2:sha256'))
