@@ -109,7 +109,7 @@ h3 {
 }
 
 .table-container {
-    max-height: 300px; /* Adjust height to show ~10 rows */
+    max-height: 300px; 
     overflow-y: auto;
     overflow-x: auto;
     border: 1px solid #3a4445;

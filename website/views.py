@@ -23,6 +23,10 @@ def home():
 def upload():
     return render_template('upload.html')
 
+@views.route('/documentation',methods=['GET'])
+@login_required
+def documentation():
+    return render_template('documentation.html')
 @views.route('/display', methods=['GET','POST'])
 @login_required
 def display():

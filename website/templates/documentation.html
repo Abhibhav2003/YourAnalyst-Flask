@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/documentation.css') }}">
+{% endblock %}
+
+{% block nav %}
+{% include 'nav.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="documentation-container">
+    <header class="header">
+        <h1>YourAnalyst Documentation</h1>
+        <p>Your personal data analysis companion</p>
+    </header>
+
+    <main class="content">
+        <section class="section">
+            <h2>Introduction</h2>
+            <p>
+                <strong>YourAnalyst</strong> is a powerful web-based tool designed to help you analyze,
+                clean, transform, and visualize datasets with ease.
+            </p>
+        </section>
+
+        <section class="section">
+            <h2>Features</h2>
+            <ul>
+                <li><strong>Data Cleaning:</strong> Drop nulls, fill missing values, remove duplicates.</li>
+                <li><strong>Data Transformation:</strong> Normalize, Standardize, Encode Categorical, PCA, Clustering.</li>
+                <li><strong>Statistical Analysis:</strong> Basic Stats, Outlier Detection, Covariance & Correlation.</li>
+                <li><strong>Visualizations:</strong> Histogram, Scatter Plot, Bar Plot, Line Plot (with dashboard export).</li>
+                <li><strong>Column Type Conversion:</strong> Easily change data types (int, float, string).</li>
+                <li><strong>Data Export:</strong> Download modified dataset as CSV & export dashboard as HTML.</li>
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>How to Use</h2>
+            <ol>
+                <li>Upload your dataset on the upload page.</li>
+                <li>Select a table if there are multiple.</li>
+                <li>Click on Analyse button.</li>
+                <li>Download your <strong>AI-Generated</strong>(It takes a little time) as readme file.</li>
+                <li>Go to <strong>Manual Analysis</strong>.</li>
+                <li>Select columns and choose an operation to perform.</li>
+                <li>Visualize your data or download results.</li>
+            </ol>
+        </section>
+
+        <section class="section">
+            <h2>Tips</h2>
+            <ul>
+                <li>Ensure correct column selection for each operation.</li>
+                <li>For charts, selecting one or two columns gives different results.</li>
+                <li>Use Undo to revert the last action if needed.</li>
+                <li>Dashboard allows saving & exporting multiple charts together.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 YourAnalyst. All rights reserved.</p>
+    </footer>
+</div>
+{% endblock %}
