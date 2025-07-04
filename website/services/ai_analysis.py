@@ -7,7 +7,7 @@ import os
 load_dotenv()
 key = os.getenv('G_SECRET_KEY')
 
-with open('website\services\system_instructions.txt', 'r', encoding='utf-8') as file:
+with open('website/services/system_instructions.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
 def enter_data(user_prompt,data):
