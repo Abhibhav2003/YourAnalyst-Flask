@@ -110,30 +110,28 @@ def download_report():
     )
 
 @views.route('/manual-analysis', methods=['GET', 'POST'])
-@login_required
 def manual_analysis():
-
+    # Load session-stored DataFrame
     encoded_data = session.get('tables')
     if not encoded_data:
         flash("No table data found in session", category="error")
         return redirect('/upload')
 
     dfs = pickle.loads(base64.b64decode(encoded_data))
-    df = list(dfs.values())[0]  
+    df = list(dfs.values())[0]  # using first table by default
 
     columns = df.columns.tolist()
     selected_columns = request.form.getlist('columns') if request.method == 'POST' else []
     table_html = df.head(10).to_html(classes="styled-table", index=False)
 
     results = {}
-    charts = []
+
+    # Load saved charts from session
+    saved_charts = session.get('saved_charts')
+    charts = pickle.loads(base64.b64decode(saved_charts)) if saved_charts else []
 
     if request.method == 'POST':
         action = request.form.get('action')
-        if not selected_columns and action != 'change_dtype':
-            flash("Please select at least one column for analysis.", category="error")
-            return redirect('/manual-analysis')
-
         try:
             if action == 'summary':
                 results['Summary'] = helpers.basic_stats(df, selected_columns)
@@ -165,16 +163,13 @@ def manual_analysis():
             elif action in ['histogram', 'scatter', 'bar', 'line']:
                 encoded_image = helpers.plot_chart(df, selected_columns, action)
                 charts.append({'type': action.capitalize(), 'image': encoded_image})
+                session['saved_charts'] = base64.b64encode(pickle.dumps(charts)).decode('utf-8')
             elif action == 'change_dtype':
                 col = request.form.get('convert_column')
                 dtype = request.form.get('convert_dtype')
-                if col and dtype:
-                    df = helpers.change_column_type(df, col, dtype)
-                    flash(f"Changed data type of column '{col}' to '{dtype}'.", category="success")
-                else:
-                    flash("Select both column and data type.", category="error")
+                df = helpers.change_column_type(df, col, dtype)
             elif action == 'undo':
-                dfs = pickle.loads(base64.b64decode(encoded_data))  # reload original data
+                dfs = pickle.loads(base64.b64decode(encoded_data))  # revert to original
                 df = list(dfs.values())[0]
                 flash("Reverted to last saved state.", category="info")
             else:
@@ -194,3 +189,76 @@ def manual_analysis():
         results=results,
         charts=charts
     )
+
+@views.route('/manual-analysis/download-csv', methods=['GET'])
+def download_manual_csv():
+    encoded_data = session.get('tables')
+    if not encoded_data:
+        flash("No table data found in session", category="error")
+        return redirect('/manual-analysis')
+    
+    dfs = pickle.loads(base64.b64decode(encoded_data))
+    df = list(dfs.values())[0]
+
+    buffer = io.BytesIO()
+    df.to_csv(buffer, index=False)
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='modified_data.csv'
+    )
+
+@views.route('/download_dashboard', methods=['GET'])
+def download_dashboard():
+    saved_charts = session.get('saved_charts')
+    if not saved_charts:
+        flash("No charts saved for dashboard.", category="error")
+        return redirect('/manual-analysis')
+
+    charts = pickle.loads(base64.b64decode(saved_charts))
+
+    html_content = """
+    <html>
+    <head>
+        <title>My Dashboard</title>
+        <style>
+            body { background-color: #121212; color: white; font-family: Arial; }
+            .dashboard { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+            .chart { border: 2px solid #333; border-radius: 8px; padding: 10px; background: #1e1e1e; flex: 1 1 45%; }
+            img { max-width: 100%; height: auto; border-radius: 5px; }
+            h2 { text-align: center; }
+        </style>
+    </head>
+    <body>
+        <h1 style="text-align:center;">Dashboard</h1>
+        <div class="dashboard">
+    """
+
+    for chart in charts:
+        html_content += f"""
+            <div class="chart">
+                <h2>{chart['type']}</h2>
+                <img src="data:image/png;base64,{chart['image']}" alt="{chart['type']} Chart">
+            </div>
+        """
+
+    html_content += """
+        </div>
+    </body>
+    </html>
+    """
+
+    buffer = io.BytesIO()
+    buffer.write(html_content.encode('utf-8'))
+    buffer.seek(0)
+
+    return send_file(buffer, as_attachment=True, download_name='dashboard.html', mimetype='text/html')
+
+@views.route('/clear_dashboard', methods=['POST'])
+def clear_dashboard():
+    session.pop('saved_charts', None)
+    flash("Dashboard cleared successfully!", category="success")
+    return redirect('/manual-analysis')

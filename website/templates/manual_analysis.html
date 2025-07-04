@@ -57,13 +57,13 @@
             </div>
             <div class="button-group">
                 <h3>Column Type Conversion</h3>
-                <label for="convert_column">Column:</label>
+                <label for="convert_column" style="color:#fff;">Column:</label>
                 <select name="convert_column" id="convert_column" class="btn-dropdown">
                     {% for col in columns %}
                     <option value="{{ col }}">{{ col }}</option>
                     {% endfor %}
                 </select>
-                <label for="convert_dtype">New Type:</label>
+                <label for="convert_dtype" style="color:#fff;">New Type:</label>
                 <select name="convert_dtype" id="convert_dtype" class="btn-dropdown">
                     <option value="int">Integer</option>
                     <option value="float">Float</option>
@@ -123,5 +123,23 @@
         <p class="no-data">No results available. Perform an analysis to view results.</p>
     </div>
     {% endif %}
+
+    <!-- Download Options -->
+<div class="card">
+    <h2>Download Options</h2>
+    <div class="button-group">
+        <form method="GET" action="{{ url_for('views.download_manual_csv') }}" style="display:inline;">
+            <button type="submit" class="btn btn-primary">Download CSV</button>
+        </form>
+
+        {% if charts %}
+        <form method="GET" action="{{ url_for('views.download_dashboard') }}" style="display:inline;">
+            <button type="submit" class="btn btn-visual">Download Full Dashboard (HTML)</button>
+        </form>
+        <form method="POST" action="{{ url_for('views.clear_dashboard') }}" style="display:inline;">
+            <button type="submit" class="btn btn-undo">Clear Dashboard</button>
+        </form>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
