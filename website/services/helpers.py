@@ -4,6 +4,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
+import seaborn as sns
 import io
 import base64
 
@@ -93,7 +94,7 @@ def covariance(df, cols):
 
 def plot_chart(df, cols, chart_type):
     """Generate a plot and return base64-encoded PNG image string."""
-    plt.style.use('dark_background')
+    sns.set_style('dark')
     plt.figure(figsize=(6, 4))
 
     if not cols:
@@ -116,7 +117,11 @@ def plot_chart(df, cols, chart_type):
             plt.xlabel(cols[0])
             plt.ylabel("Frequency")
         else:
-            df[numeric_cols].mean().plot(kind='bar')
+            if not pd.api.types.is_numeric_dtype(df[cols[0]]) and not pd.api.types.is_numeric_dtype(df[cols[1]]):
+                raise ValueError(f"Column '{cols[1]}' must be numeric for bar plot.")
+            plt.bar(df[cols[0]].astype(str), df[cols[1]])
+            plt.xlabel(cols[0])
+            plt.ylabel(cols[1])
     elif chart_type == 'line':
         if len(cols) == 1:
             df[cols[0]].value_counts().sort_index().plot(kind='line')
@@ -146,9 +151,9 @@ def plot_chart(df, cols, chart_type):
 def change_column_type(df, col, dtype):
     """Change the data type of a column with error handling."""
     if dtype == 'int':
-        df[col] = pd.to_numeric(df[col], errors='raise').astype('Int64')
+        df[col] = pd.to_numeric(df[col], errors='coerce').astype('int')
     elif dtype == 'float':
-        df[col] = pd.to_numeric(df[col], errors='raise')
+        df[col] = pd.to_numeric(df[col], errors='coerce')
     elif dtype == 'str':
         df[col] = df[col].astype(str)
     else:

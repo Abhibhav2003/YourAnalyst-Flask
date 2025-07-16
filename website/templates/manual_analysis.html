@@ -29,31 +29,31 @@
             <h2>Operations</h2>
             <div class="button-group">
                 <h3>Data Cleaning</h3>
-                <button type="submit" name="action" value="summary" class="btn btn-primary">Summary</button>
-                <button type="submit" name="action" value="drop_nulls" class="btn btn-primary">Drop Nulls</button>
-                <button type="submit" name="action" value="fill_nulls_mean" class="btn btn-primary">Fill Nulls (Mean)</button>
-                <button type="submit" name="action" value="remove_duplicates" class="btn btn-primary">Remove Duplicates</button>
+                <button type="button" class="btn btn-primary">Summary</button>
+                <button type="button" class="btn btn-primary">Drop Nulls</button>
+                <button type="button" class="btn btn-primary">Fill Nulls (Mean)</button>
+                <button type="button" class="btn btn-primary">Remove Duplicates</button>
             </div>
             <div class="button-group">
                 <h3>Transformations</h3>
-                <button type="submit" name="action" value="normalize" class="btn btn-primary">Normalize</button>
-                <button type="submit" name="action" value="standardize" class="btn btn-primary">Standardize</button>
-                <button type="submit" name="action" value="encode_categorical" class="btn btn-primary">Encode Categorical</button>
-                <button type="submit" name="action" value="pca" class="btn btn-primary">Apply PCA</button>
-                <button type="submit" name="action" value="cluster" class="btn btn-primary">Apply Clustering</button>
+                <button type="button" class="btn btn-primary" data-action="normalize" onclick="openModal(this)">Normalize</button>
+                <button type="button" class="btn btn-primary" data-action="standardize" onclick="openModal(this)">Standardize</button>
+                <button type="button" class="btn btn-primary" data-action="encode_categorical" onclick="openModal(this)">Encode Categorical</button>
+                <button type="button" class="btn btn-primary" data-action="pca" onclick="openModal(this)">Apply PCA</button>
+                <button type="button" class="btn btn-primary" data-action="cluster" onclick="openModal(this)">Apply Clustering</button>
             </div>
             <div class="button-group">
                 <h3>Statistical Analysis</h3>
-                <button type="submit" name="action" value="basic_stats" class="btn btn-primary">Basic Stats</button>
-                <button type="submit" name="action" value="outliers" class="btn btn-primary">Detect Outliers</button>
-                <button type="submit" name="action" value="confidence" class="btn btn-primary">Confidence & Covariance</button>
+                <button type="button" class="btn btn-primary" data-action="basic_stats" onclick="openModal(this)">Basic Stats</button>
+                <button type="button" class="btn btn-primary" data-action="outliers" onclick="openModal(this)">Detect Outliers</button>
+                <button type="button" class="btn btn-primary" data-action="confidence" onclick="openModal(this)">Correlation & Covariance</button>
             </div>
             <div class="button-group">
                 <h3>Visualizations</h3>
-                <button type="submit" name="action" value="histogram" class="btn btn-visual">Histogram</button>
-                <button type="submit" name="action" value="scatter" class="btn btn-visual">Scatter Plot</button>
-                <button type="submit" name="action" value="bar" class="btn btn-visual">Bar Plot</button>
-                <button type="submit" name="action" value="line" class="btn btn-visual">Line Plot</button>
+                <button type="button" class="btn btn-visual" data-action="histogram" onclick="openModal(this)">Histogram</button>
+                <button type="button" class="btn btn-visual" data-action="scatter" onclick="openModal(this)">Scatter Plot</button>
+                <button type="button" class="btn btn-visual" data-action="bar" onclick="openModal(this)">Bar Plot</button>
+                <button type="button" class="btn btn-visual" data-action="line" onclick="openModal(this)">Line Plot</button>
             </div>
             <div class="button-group">
                 <h3>Column Type Conversion</h3>
@@ -77,6 +77,26 @@
             </div>
         </div>
     </form>
+
+    <!-- Universal Modal -->
+    <div id="dynamicModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Select Columns</h2>
+            <form method="POST" id="dynamicForm">
+                <div class="checkbox-group">
+                    {% for col in columns %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="columns" value="{{ col }}">
+                        {{ col }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="action" id="modalAction" value="">
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Data Preview -->
     <div class="card">
@@ -125,21 +145,45 @@
     {% endif %}
 
     <!-- Download Options -->
-<div class="card">
-    <h2>Download Options</h2>
-    <div class="button-group">
-        <form method="GET" action="{{ url_for('views.download_manual_csv') }}" style="display:inline;">
-            <button type="submit" class="btn btn-primary">Download CSV</button>
-        </form>
+    <div class="card">
+        <h2>Download Options</h2>
+        <div class="button-group">
+            <form method="GET" action="{{ url_for('views.download_manual_csv') }}" style="display:inline;">
+                <button type="submit" class="btn btn-primary">Download CSV</button>
+            </form>
 
-        {% if charts %}
-        <form method="GET" action="{{ url_for('views.download_dashboard') }}" style="display:inline;">
-            <button type="submit" class="btn btn-visual">Download Full Dashboard (HTML)</button>
-        </form>
-        <form method="POST" action="{{ url_for('views.clear_dashboard') }}" style="display:inline;">
-            <button type="submit" class="btn btn-undo">Clear Dashboard</button>
-        </form>
-        {% endif %}
+            {% if charts %}
+            <form method="GET" action="{{ url_for('views.download_dashboard') }}" style="display:inline;">
+                <button type="submit" class="btn btn-visual">Download Full Dashboard (HTML)</button>
+            </form>
+            <form method="POST" action="{{ url_for('views.clear_dashboard') }}" style="display:inline;">
+                <button type="submit" class="btn btn-undo">Clear Dashboard</button>
+            </form>
+            {% endif %}
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openModal(button) {
+    const action = button.getAttribute("data-action");
+    const title = button.innerText || "Select Columns";
+    document.getElementById("modalAction").value = action;
+    document.getElementById("modalTitle").innerText = title;
+    document.getElementById("dynamicModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("dynamicModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("dynamicModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+</script>
 {% endblock %}

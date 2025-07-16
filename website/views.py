@@ -136,6 +136,8 @@ def manual_analysis():
 
     if request.method == 'POST':
         action = request.form.get('action')
+        if action != 'undo':
+           session['undo_state'] = session['tables']
         try:
             if action == 'summary':
                 results['Summary'] = helpers.basic_stats(df, selected_columns)
@@ -172,10 +174,16 @@ def manual_analysis():
                 col = request.form.get('convert_column')
                 dtype = request.form.get('convert_dtype')
                 df = helpers.change_column_type(df, col, dtype)
+
             elif action == 'undo':
-                dfs = pickle.loads(base64.b64decode(encoded_data))  # revert to original
-                df = list(dfs.values())[0]
-                flash("Reverted to last saved state.", category="info")
+                undo_state = session.get('undo_state')
+                if undo_state:
+                    dfs = pickle.loads(base64.b64decode(undo_state))
+                    df = list(dfs.values())[0]
+                    flash("Undo successful. Reverted to previous state.", category="info")
+                else:
+                    flash("No undo history found.", category="warning")
+
             else:
                 flash("Invalid action.", category="error")
         except Exception as e:
@@ -186,7 +194,7 @@ def manual_analysis():
         table_html = df.head(10).to_html(classes="styled-table", index=False)
 
     return render_template(
-        'manual_analysis.html',
+       'manual_analysis.html',
         columns=columns,
         selected_columns=selected_columns,
         table=table_html,
