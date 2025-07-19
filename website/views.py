@@ -1,7 +1,7 @@
 from flask import Blueprint,send_file,render_template,request,redirect,flash,session
 from flask_login import login_required,current_user
 import pandas as pd
-from website.services import scrape_data as scrp , ai_analysis as ai, helpers
+from website.services import scrape_data as scrp , ai_analysis as ai, analyze
 import pickle
 import json
 import io
@@ -140,38 +140,38 @@ def manual_analysis():
            session['undo_state'] = session['tables']
         try:
             if action == 'summary':
-                results['Summary'] = helpers.basic_stats(df, selected_columns)
+                results['Summary'] = analyze.basic_stats(df, selected_columns)
             elif action == 'drop_nulls':
-                df = helpers.drop_na(df)
+                df = analyze.drop_na(df)
             elif action == 'fill_nulls_mean':
-                df = helpers.fill_na_mean(df)
+                df = analyze.fill_na_mean(df)
             elif action == 'remove_duplicates':
-                df = helpers.drop_duplicates(df)
+                df = analyze.drop_duplicates(df)
             elif action == 'normalize':
-                df = helpers.normalize(df, selected_columns)
+                df = analyze.normalize(df, selected_columns)
             elif action == 'standardize':
-                df = helpers.standardize(df, selected_columns)
+                df = analyze.standardize(df, selected_columns)
             elif action == 'encode_categorical':
-                df = helpers.encode_categorical(df, selected_columns)
+                df = analyze.encode_categorical(df, selected_columns)
             elif action == 'cluster':
-                df = helpers.apply_clustering(df, selected_columns)
+                df = analyze.apply_clustering(df, selected_columns)
             elif action == 'basic_stats':
-                results['Basic Stats'] = helpers.basic_stats(df, selected_columns)
+                results['Basic Stats'] = analyze.basic_stats(df, selected_columns)
             elif action == 'outliers':
                 results['Outliers'] = {}
                 for col in selected_columns:
-                    results['Outliers'][col] = helpers.detect_outliers(df, col)
+                    results['Outliers'][col] = analyze.detect_outliers(df, col)
             elif action == 'confidence':
-                results['Correlation'] = helpers.correlation(df, selected_columns)
-                results['Covariance'] = helpers.covariance(df, selected_columns)
+                results['Correlation'] = analyze.correlation(df, selected_columns)
+                results['Covariance'] = analyze.covariance(df, selected_columns)
             elif action in ['histogram', 'scatter', 'bar', 'line']:
-                encoded_image = helpers.plot_chart(df, selected_columns, action)
+                encoded_image = analyze.plot_chart(df, selected_columns, action)
                 charts.append({'type': action.capitalize(), 'image': encoded_image})
                 session['saved_charts'] = base64.b64encode(pickle.dumps(charts)).decode('utf-8')
             elif action == 'change_dtype':
                 col = request.form.get('convert_column')
                 dtype = request.form.get('convert_dtype')
-                df = helpers.change_column_type(df, col, dtype)
+                df = analyze.change_column_type(df, col, dtype)
 
             elif action == 'undo':
                 undo_state = session.get('undo_state')
