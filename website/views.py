@@ -124,7 +124,7 @@ def manual_analysis():
     dfs = pickle.loads(base64.b64decode(encoded_data))
     df = list(dfs.values())[0]  # using first table by default
 
-    columns = df.columns.tolist()
+    columns = df.columns.tolist()                                                       
     selected_columns = request.form.getlist('columns') if request.method == 'POST' else []
     table_html = df.head(10).to_html(classes="styled-table", index=False)
 
