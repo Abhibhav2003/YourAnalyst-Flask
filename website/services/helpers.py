@@ -58,16 +58,7 @@ def encode_categorical(df, cols):
         df[col] = LabelEncoder().fit_transform(df[col].astype(str))
     return df
 
-def apply_pca(df, cols, n_components=2):
-    """Apply PCA on selected numeric columns."""
-    numeric_cols = [col for col in cols if pd.api.types.is_numeric_dtype(df[col])]
-    if not numeric_cols:
-        raise ValueError("No numeric columns selected for PCA.")
-    pca = PCA(n_components=min(n_components, len(numeric_cols)))
-    components = pca.fit_transform(df[numeric_cols])
-    for i in range(components.shape[1]):
-        df[f'PCA_{i+1}'] = components[:, i]
-    return df
+### 
 
 def apply_clustering(df, cols, n_clusters=3):
     """Apply KMeans Clustering on selected numeric columns."""

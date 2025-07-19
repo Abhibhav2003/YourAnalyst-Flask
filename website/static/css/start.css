@@ -46,9 +46,9 @@ body {
 }
 
 .st-btn {
-    padding: 15px 50px;
-    background: linear-gradient(145deg, #2c5364, #203a43, #0f2027);
-    color: white;
+    padding: 10px 40px;
+    background: whitesmoke;
+    color: #111;
     border: none;
     border-radius: 10px;
     font-size: 18px;

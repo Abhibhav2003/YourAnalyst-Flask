@@ -153,8 +153,6 @@ def manual_analysis():
                 df = helpers.standardize(df, selected_columns)
             elif action == 'encode_categorical':
                 df = helpers.encode_categorical(df, selected_columns)
-            elif action == 'pca':
-                df = helpers.apply_pca(df, selected_columns)
             elif action == 'cluster':
                 df = helpers.apply_clustering(df, selected_columns)
             elif action == 'basic_stats':
