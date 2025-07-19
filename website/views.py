@@ -27,9 +27,13 @@ def upload():
 @login_required
 def documentation():
     return render_template('documentation.html')
+
+
 @views.route('/display', methods=['GET','POST'])
 @login_required
 def display():
+    '''This function stores the dataframe in the session state'''
+    
     if request.method == "POST":
         if request.form.get('scrape-url'):
             url = request.form.get('scrape-url')
@@ -67,6 +71,8 @@ def display():
 @views.route('/analyse', methods=['GET', 'POST'])
 @login_required
 def analyse():
+    '''This function receives result from Gemini API'''
+
     if request.method == 'POST':
         selected_key = request.form.get("selected_table")
 
@@ -78,7 +84,7 @@ def analyse():
         if not encoded_data:
             flash("No table data found in session", category="error")
             return redirect('/upload')
-
+        
         dfs = pickle.loads(base64.b64decode(encoded_data))
 
         if selected_key not in dfs:
@@ -96,6 +102,8 @@ def analyse():
 
 @views.route('/download_report', methods=['POST'])
 def download_report():
+    '''This function lets the user download the analysis report'''
+
     response_text = request.form.get('response')
 
     if not response_text:
@@ -115,14 +123,16 @@ def download_report():
 
 @views.route('/manual-analysis', methods=['GET', 'POST'])
 def manual_analysis():
-    # Load session-stored DataFrame
+    '''This function provides various functions for statistical analysis 
+       and dashboard creation'''
+    
     encoded_data = session.get('tables')
     if not encoded_data:
         flash("No table data found in session", category="error")
         return redirect('/upload')
 
     dfs = pickle.loads(base64.b64decode(encoded_data))
-    df = list(dfs.values())[0]  # using first table by default
+    df = list(dfs.values())[0]  
 
     columns = df.columns.tolist()                                                       
     selected_columns = request.form.getlist('columns') if request.method == 'POST' else []
@@ -130,7 +140,6 @@ def manual_analysis():
 
     results = {}
 
-    # Load saved charts from session
     saved_charts = session.get('saved_charts')
     charts = pickle.loads(base64.b64decode(saved_charts)) if saved_charts else []
 
