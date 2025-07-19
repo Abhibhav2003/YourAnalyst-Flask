@@ -1,5 +1,5 @@
 from flask import Blueprint,send_file,render_template,request,redirect,flash,session
-from flask_login import login_required,current_user
+from flask_login import login_required
 import pandas as pd
 from website.services import scrape_data as scrp , ai_analysis as ai, analyze
 import pickle
