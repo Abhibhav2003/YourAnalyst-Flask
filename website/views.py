@@ -75,7 +75,6 @@ def analyse():
 
     if request.method == 'POST':
         selected_key = request.form.get("selected_table")
-
         if not selected_key:
             flash("Please select a table.", category="error")
             return redirect('/display')
