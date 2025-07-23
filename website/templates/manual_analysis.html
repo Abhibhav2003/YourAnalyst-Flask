@@ -8,31 +8,19 @@
     <h1>Manual Data Analysis Dashboard</h1>
 
     <form method="POST" class="analysis-form">
-        <!-- Column Selection -->
-        <div class="card">
-            <h2>Select Columns for Analysis</h2>
-            <div class="checkbox-group">
-                {% for col in columns %}
-                <label class="checkbox-label">
-                    <input type="checkbox" name="columns" value="{{ col }}" {% if col in selected_columns %}checked{% endif %}>
-                    {{ col }}
-                </label>
-                {% endfor %}
-                {% if not columns %}
-                <p class="no-data">No columns available. Please upload data first.</p>
-                {% endif %}
-            </div>
-        </div>
+        {% if not columns %}
+        <p class="no-data">No columns available. Please upload data first.</p>
+        {% endif %}
 
         <!-- Operations -->
         <div class="card">
             <h2>Operations</h2>
             <div class="button-group">
                 <h3>Data Cleaning</h3>
-                <button type="button" class="btn btn-primary">Summary</button>
-                <button type="button" class="btn btn-primary">Drop Nulls</button>
-                <button type="button" class="btn btn-primary">Fill Nulls (Mean)</button>
-                <button type="button" class="btn btn-primary">Remove Duplicates</button>
+                <button type="submit" class="btn btn-primary" name="action" value="info">Info</button>
+                <button type="button" class="btn btn-primary" data-action="drop_nulls" onclick="openModal(this)">Drop Nulls</button>
+                <button type="button" class="btn btn-primary" data-action="fill_nulls_mean" onclick="openModal(this)">Fill Na(Mean)</button>
+                <button type="button" class="btn btn-primary" data-action="remove_duplicates" onclick="openModal(this)">Remove Duplicates</button>
             </div>
             <div class="button-group">
                 <h3>Transformations</h3>
@@ -53,6 +41,8 @@
                 <button type="button" class="btn btn-visual" data-action="scatter" onclick="openModal(this)">Scatter Plot</button>
                 <button type="button" class="btn btn-visual" data-action="bar" onclick="openModal(this)">Bar Plot</button>
                 <button type="button" class="btn btn-visual" data-action="line" onclick="openModal(this)">Line Plot</button>
+                <button type="button" class="btn btn-visual" data-action="countplot" onclick="openModal(this)">Countplot</button>
+                <button type="button" class="btn btn-visual" data-action="boxplot" onclick="openModal(this)">Boxplot</button>
             </div>
             <div class="button-group">
                 <h3>Column Type Conversion</h3>
@@ -117,7 +107,9 @@
             {% for chart in charts %}
             <div class="chart-item">
                 <h3>{{ chart.type }}</h3>
-                <img src="data:image/png;base64,{{ chart.image }}" alt="{{ chart.type }}" class="chart-image">
+                <div class="chart-html">
+                    {{ chart.html | safe }}
+                </div>
             </div>
             {% endfor %}
         </div>

@@ -3,7 +3,6 @@ from flask_login import login_required
 import pandas as pd
 from website.services import scrape_data as scrp , ai_analysis as ai, analyze
 import pickle
-import json
 import io
 import base64
 
@@ -75,6 +74,7 @@ def analyse():
 
     if request.method == 'POST':
         selected_key = request.form.get("selected_table")
+        print(selected_key)
         if not selected_key:
             flash("Please select a table.", category="error")
             return redirect('/display')
@@ -109,18 +109,19 @@ def download_report():
         flash("No analysis found to download.", category="error")
         return redirect('/analyse')
 
-    buffer = io.BytesIO()
-    buffer.write(response_text.encode('utf-8'))
-    buffer.seek(0)
+    buffer = io.BytesIO() # creating an in-memory file
+    buffer.write(response_text.encode('utf-8')) # write into this file
+    buffer.seek(0) # bring the pointer again to the start
 
     return send_file(
-        buffer,
-        as_attachment=True,
-        download_name='analysis_report.md',
-        mimetype='text/plain'
+        buffer, # this is the file
+        as_attachment=True, # Save the file instead of displaying it
+        download_name='analysis_report.md', # this should be the name
+        mimetype='text/plain' # and this is the file format
     )
 
 @views.route('/manual-analysis', methods=['GET', 'POST'])
+@login_required
 def manual_analysis():
     '''This function provides various functions for statistical analysis 
        and dashboard creation'''
@@ -139,16 +140,15 @@ def manual_analysis():
 
     results = {}
 
-    saved_charts = session.get('saved_charts')
-    charts = pickle.loads(base64.b64decode(saved_charts)) if saved_charts else []
+    charts = session.get('saved_charts', [])
 
     if request.method == 'POST':
         action = request.form.get('action')
         if action != 'undo':
            session['undo_state'] = session['tables']
         try:
-            if action == 'summary':
-                results['Summary'] = analyze.basic_stats(df, selected_columns)
+            if action == 'info':
+                results['info'] = analyze.information(df)
             elif action == 'drop_nulls':
                 df = analyze.drop_na(df)
             elif action == 'fill_nulls_mean':
@@ -172,10 +172,10 @@ def manual_analysis():
             elif action == 'confidence':
                 results['Correlation'] = analyze.correlation(df, selected_columns)
                 results['Covariance'] = analyze.covariance(df, selected_columns)
-            elif action in ['histogram', 'scatter', 'bar', 'line']:
-                encoded_image = analyze.plot_chart(df, selected_columns, action)
-                charts.append({'type': action.capitalize(), 'image': encoded_image})
-                session['saved_charts'] = base64.b64encode(pickle.dumps(charts)).decode('utf-8')
+            elif action in ['histogram', 'scatter', 'bar', 'line', 'countplot', 'boxplot']:
+                chart_html = analyze.plot_chart(df, selected_columns, action)
+                charts.append({'type': action.capitalize(), 'html': chart_html})
+                session['saved_charts'] = charts
             elif action == 'change_dtype':
                 col = request.form.get('convert_column')
                 dtype = request.form.get('convert_dtype')

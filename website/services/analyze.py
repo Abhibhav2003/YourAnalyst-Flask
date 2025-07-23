@@ -1,12 +1,16 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 import io
-import base64
+
+def information(df):
+    buffer = io.StringIO()
+    df.info(buf=buffer) 
+    return buffer.getvalue()
 
 def drop_duplicates(df, inplace=False):
     """Drop duplicate rows from the dataframe."""
@@ -26,7 +30,7 @@ def basic_stats(df, cols):
     numeric_cols = [col for col in cols if pd.api.types.is_numeric_dtype(df[col])]
     if not numeric_cols:
         raise ValueError("No numeric columns selected for Basic Stats.")
-    return df[numeric_cols].describe().to_dict()
+    return df[numeric_cols].describe(include='all').to_dict()
 
 def detect_outliers(df, col):
     """Detect outliers in a numeric column using IQR method."""
@@ -58,7 +62,6 @@ def encode_categorical(df, cols):
         df[col] = LabelEncoder().fit_transform(df[col].astype(str))
     return df
 
-### 
 
 def apply_clustering(df, cols, n_clusters=3):
     """Apply KMeans Clustering on selected numeric columns."""
@@ -83,61 +86,50 @@ def covariance(df, cols):
         raise ValueError("No numeric columns selected for Covariance.")
     return df[numeric_cols].cov().to_dict()
 
-def plot_chart(df, cols, chart_type):
-    """Generate a plot and return base64-encoded PNG image string."""
-    sns.set_style('dark')
-    plt.figure(figsize=(6, 4))
 
+def plot_chart(df, cols, chart_type):
+    sns.set_style('dark')
     if not cols:
         raise ValueError("No columns selected for plotting.")
     
     numeric_cols = [col for col in cols if pd.api.types.is_numeric_dtype(df[col])]
-
+    
     if chart_type == 'histogram':
         if len(cols) == 1:
-            df[cols[0]].value_counts().plot(kind='bar')
-            plt.xlabel(cols[0])
-            plt.ylabel("Frequency")
+          fig = px.histogram(df, x = cols[0])
         else:
-            if not numeric_cols:
-                raise ValueError("No numeric columns available for histogram.")
-            df[numeric_cols].hist(bins=20)
+            raise ValueError("Histogram takes in 1 variable but two were passed")
     elif chart_type == 'bar':
-        if len(cols) == 1:
-            df[cols[0]].value_counts().plot(kind='bar')
-            plt.xlabel(cols[0])
-            plt.ylabel("Frequency")
-        else:
-            if not pd.api.types.is_numeric_dtype(df[cols[0]]) and not pd.api.types.is_numeric_dtype(df[cols[1]]):
-                raise ValueError(f"Column '{cols[1]}' must be numeric for bar plot.")
-            plt.bar(df[cols[0]].astype(str), df[cols[1]])
-            plt.xlabel(cols[0])
-            plt.ylabel(cols[1])
+        if len(cols) < 2:
+            raise ValueError("Bar chart requires two columns.")
+        fig = px.bar(df, x = cols[0], y = cols[1])
     elif chart_type == 'line':
-        if len(cols) == 1:
-            df[cols[0]].value_counts().sort_index().plot(kind='line')
-            plt.xlabel(cols[0])
-            plt.ylabel("Frequency")
+        if len(cols) == 2: 
+           fig = px.line(df, x=cols[0], y=cols[1]) 
         else:
-            df[numeric_cols].plot()
+            raise ValueError("Line chart requires two columns")
     elif chart_type == 'scatter':
-        if len(numeric_cols) >= 2:
-            plt.scatter(df[numeric_cols[0]], df[numeric_cols[1]])
-            plt.xlabel(numeric_cols[0])
-            plt.ylabel(numeric_cols[1])
+        if len(numeric_cols) < 2:
+            raise ValueError("Scatter plot requires two numeric columns.")
+        fig = px.scatter(df, x = numeric_cols[0], y = numeric_cols[1])
+    
+    elif chart_type == 'countplot':
+        if len(cols) == 1:
+            fig = px.bar(df[cols[0]].value_counts().reset_index(), 
+                x= cols[0], 
+                y='count',
+                title=f'Countplot of {cols[0]}')
         else:
-            raise ValueError("Scatter plot requires at least two numeric columns.")
-    else:
-        raise ValueError("Unsupported chart type or insufficient columns.")
+            raise ValueError("Countplot takes 1 argument only")
+    
+    elif chart_type == 'boxplot':
+        if len(cols) == 1:
+            fig = px.box(df, y=cols[0], points="all")
+        elif len(cols) == 2:
+            fig = px.box(df, x=cols[0], y=cols[1], points="all")
+            
+    return fig.to_html(full_html=False)
 
-    plt.tight_layout()
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    encoded = base64.b64encode(buf.read()).decode('utf-8')
-    buf.close()
-    plt.close()
-    return encoded
 
 def change_column_type(df, col, dtype):
     """Change the data type of a column with error handling."""
