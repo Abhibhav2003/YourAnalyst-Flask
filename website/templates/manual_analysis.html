@@ -12,7 +12,6 @@
         <p class="no-data">No columns available. Please upload data first.</p>
         {% endif %}
 
-        <!-- Operations -->
         <div class="card">
             <h2>Operations</h2>
             <div class="button-group">
@@ -33,7 +32,8 @@
                 <h3>Statistical Analysis</h3>
                 <button type="button" class="btn btn-primary" data-action="basic_stats" onclick="openModal(this)">Basic Stats</button>
                 <button type="button" class="btn btn-primary" data-action="outliers" onclick="openModal(this)">Detect Outliers</button>
-                <button type="button" class="btn btn-primary" data-action="confidence" onclick="openModal(this)">Correlation & Covariance</button>
+                <button type="button" class="btn btn-primary" data-action="association" onclick="openModal(this)">Correlation & Covariance</button>
+                <button type="button" class="btn btn-primary" data-action="regression" onclick="openModal(this)">Linear Regression</button>
             </div>
             <div class="button-group">
                 <h3>Visualizations</h3>
@@ -67,8 +67,7 @@
         </div>
     </form>
 
-    <!-- Universal Modal -->
-    <div id="dynamicModal" class="modal">
+    <div id="dynamicModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Select Columns</h2>
@@ -81,13 +80,21 @@
                     </label>
                     {% endfor %}
                 </div>
+
+                <div id="clusterOptions" style="display:none; margin-top: 10px;">
+                    <label for="n_clusters" style="color:#fff; font-weight: bold;">Number of Clusters:</label>
+                    <input type="number" name="n_clusters" id="n_clusters" min="1" value="3" style="width: 60px; margin-right: 20px;" required>
+
+                    <label for="n_init" style="color:#fff; font-weight: bold;">Number of Initializations (n_init):</label>
+                    <input type="number" name="n_init" id="n_init" min="1" value="10" style="width: 60px;" required>
+                </div>
+
                 <input type="hidden" name="action" id="modalAction" value="">
                 <button type="submit" class="btn btn-primary">Apply</button>
             </form>
         </div>
     </div>
 
-    <!-- Data Preview -->
     <div class="card">
         <h2>Data Preview (First 10 Rows)</h2>
         <div class="table-container">
@@ -99,7 +106,6 @@
         </div>
     </div>
 
-    <!-- Visualizations -->
     {% if charts %}
     <div class="card">
         <h2>Visualizations</h2>
@@ -116,7 +122,6 @@
     </div>
     {% endif %}
 
-    <!-- Results -->
     {% if results %}
     {% for name, result in results.items() %}
     <div class="card result-box">
@@ -135,7 +140,6 @@
     </div>
     {% endif %}
 
-    <!-- Download Options -->
     <div class="card">
         <h2>Download Options</h2>
         <div class="button-group">
@@ -163,6 +167,17 @@ function openModal(button) {
     const title = button.innerText || "Select Columns";
     document.getElementById("modalAction").value = action;
     document.getElementById("modalTitle").innerText = title;
+
+    const checkboxes = document.querySelectorAll('#dynamicForm input[type=checkbox]');
+    checkboxes.forEach(cb => cb.checked = false);
+
+    const clusterOptions = document.getElementById("clusterOptions");
+    clusterOptions.style.display = "none";
+
+    if(action === 'cluster') {
+        clusterOptions.style.display = "block";
+    }
+
     document.getElementById("dynamicModal").style.display = "block";
 }
 

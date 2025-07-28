@@ -151,31 +151,53 @@ def manual_analysis():
                 results['info'] = analyze.information(df)
             elif action == 'drop_nulls':
                 df = analyze.drop_na(df)
+                
             elif action == 'fill_nulls_mean':
                 df = analyze.fill_na_mean(df)
+
             elif action == 'remove_duplicates':
                 df = analyze.drop_duplicates(df)
+
             elif action == 'normalize':
                 df = analyze.normalize(df, selected_columns)
+
             elif action == 'standardize':
                 df = analyze.standardize(df, selected_columns)
+
             elif action == 'encode_categorical':
                 df = analyze.encode_categorical(df, selected_columns)
+
+            elif action == 'regression':
+                feature_cols = selected_columns[:-1]
+                target_col = selected_columns[-1]
+                results['Linear Regression'] = analyze.linear_regression(df, feature_cols, target_col)
+
             elif action == 'cluster':
-                df = analyze.apply_clustering(df, selected_columns)
+                selected_columns = request.form.getlist('columns')
+                n_clusters = int(request.form.get('n_clusters', 3))  
+                n_init = int(request.form.get('n_init', 10))         
+                if not selected_columns:
+                  flash("Please select at least one column for clustering.", category="error")
+                else:
+                  df = analyze.apply_clustering(df, selected_columns, n_clusters=n_clusters, n_init=n_init)
+
             elif action == 'basic_stats':
                 results['Basic Stats'] = analyze.basic_stats(df, selected_columns)
+
             elif action == 'outliers':
                 results['Outliers'] = {}
                 for col in selected_columns:
                     results['Outliers'][col] = analyze.detect_outliers(df, col)
-            elif action == 'confidence':
+
+            elif action == 'association':
                 results['Correlation'] = analyze.correlation(df, selected_columns)
                 results['Covariance'] = analyze.covariance(df, selected_columns)
+
             elif action in ['histogram', 'scatter', 'bar', 'line', 'countplot', 'boxplot']:
                 chart_html = analyze.plot_chart(df, selected_columns, action)
                 charts.append({'type': action.capitalize(), 'html': chart_html})
                 session['saved_charts'] = charts
+                
             elif action == 'change_dtype':
                 col = request.form.get('convert_column')
                 dtype = request.form.get('convert_dtype')

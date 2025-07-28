@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
+from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
@@ -50,7 +51,7 @@ def normalize(df, cols):
     return df
 
 def standardize(df, cols):
-    """Standardize selected numeric columns (Z-score Standardization)."""
+    """Standardize selected numeric columns (Z-score Normalization)."""
     numeric_cols = [col for col in cols if pd.api.types.is_numeric_dtype(df[col])]
     scaler = StandardScaler()
     df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
@@ -61,6 +62,38 @@ def encode_categorical(df, cols):
     for col in cols:
         df[col] = LabelEncoder().fit_transform(df[col].astype(str))
     return df
+
+def linear_regression(df, feature_cols, target_col):
+    """Perform linear regression on specified features and target."""
+    # Check if columns exist
+    for col in feature_cols + [target_col]:
+        if col not in df.columns:
+            raise ValueError(f"Column '{col}' not found in dataframe.")
+
+    # Check if features and target are numeric
+    for col in feature_cols + [target_col]:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            raise ValueError(f"Column '{col}' must be numeric for linear regression.")
+
+    # Prepare data
+    X = df[feature_cols].values
+    y = df[target_col].values
+
+    # Train model
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Predict
+    df['LinearRegression_Prediction'] = model.predict(X)
+
+    # Prepare output
+    results = {
+        'coefficients': dict(zip(feature_cols, model.coef_)),
+        'intercept': model.intercept_,
+        'predictions': df['LinearRegression_Prediction'].tolist(),
+        'r_squared': model.score(X, y)
+    }
+    return results
 
 
 def apply_clustering(df, cols, n_clusters=3):
