@@ -140,7 +140,14 @@ def manual_analysis():
 
     results = {}
 
-    charts = session.get('saved_charts', [])
+    saved_charts = session.get('saved_charts')
+    if isinstance(saved_charts, str):
+       charts = pickle.loads(base64.b64decode(saved_charts))
+    elif isinstance(saved_charts, list):
+       charts = saved_charts
+    else:
+       charts = []
+
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -196,7 +203,7 @@ def manual_analysis():
             elif action in ['histogram', 'scatter', 'bar', 'line', 'countplot', 'boxplot']:
                 chart_html = analyze.plot_chart(df, selected_columns, action)
                 charts.append({'type': action.capitalize(), 'html': chart_html})
-                session['saved_charts'] = charts
+                session['saved_charts'] = base64.b64encode(pickle.dumps(charts)).decode('utf-8')
                 
             elif action == 'change_dtype':
                 col = request.form.get('convert_column')
@@ -258,12 +265,29 @@ def download_dashboard():
         flash("No charts saved for dashboard.", category="error")
         return redirect('/manual-analysis')
 
-    charts = pickle.loads(base64.b64decode(saved_charts))
+    try:
+        if isinstance(saved_charts, str):
+            charts = pickle.loads(base64.b64decode(saved_charts))
+        else:
+            charts = saved_charts
+    except (pickle.UnpicklingError, base64.binascii.Error):
+        flash("Error processing chart data.", category="error")
+        return redirect('/manual-analysis')
+
+    if not isinstance(charts, list):
+        flash("Invalid chart data format.", category="error")
+        return redirect('/manual-analysis')
+
+    for chart in charts:
+        if not isinstance(chart, dict) or 'type' not in chart or 'html' not in chart:
+            flash("Invalid chart data format.", category="error")
+            return redirect('/manual-analysis')
 
     html_content = """
     <html>
     <head>
         <title>My Dashboard</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <style>
             body { background-color: #121212; color: white; font-family: Arial; }
             .dashboard { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
@@ -279,10 +303,10 @@ def download_dashboard():
 
     for chart in charts:
         html_content += f"""
-            <div class="chart">
-                <h2>{chart['type']}</h2>
-                <img src="data:image/png;base64,{chart['image']}" alt="{chart['type']} Chart">
-            </div>
+        <div class="chart">
+            <h2>{chart['type']}</h2>
+            {chart['html']}
+        </div>
         """
 
     html_content += """
@@ -295,7 +319,63 @@ def download_dashboard():
     buffer.write(html_content.encode('utf-8'))
     buffer.seek(0)
 
-    return send_file(buffer, as_attachment=True, download_name='dashboard.html', mimetype='text/html')
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name='dashboard.html',
+        mimetype='text/html'
+    )
+# @views.route('/download_dashboard', methods=['GET'])
+# def download_dashboard():
+#     saved_charts = session.get('saved_charts')
+#     if not saved_charts:
+#         flash("No charts saved for dashboard.", category="error")
+#         return redirect('/manual-analysis')
+
+#     if isinstance(saved_charts, str):
+#         charts = pickle.loads(base64.b64decode(saved_charts))
+#     else:
+#         charts = saved_charts
+
+#     html_content = """
+#     <html>
+#     <head>
+#         <title>My Dashboard</title>
+#         <style>
+#             body { background-color: #121212; color: white; font-family: Arial; }
+#             .dashboard { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+#             .chart { border: 2px solid #333; border-radius: 8px; padding: 10px; background: #1e1e1e; flex: 1 1 45%; }
+#             img { max-width: 100%; height: auto; border-radius: 5px; }
+#             h2 { text-align: center; }
+#         </style>
+#     </head>
+#     <body>
+#         <h1 style="text-align:center;">Dashboard</h1>
+#         <div class="dashboard">
+#     """
+
+#     for chart in charts:
+#         html_content += f"""
+#         <div class="chart">
+#             <h2>{chart['type']}</h2>
+#             {chart['html']}
+#         </div>
+#         """
+
+#     html_content += """
+#         </div>
+#     </body>
+#     </html>
+#     """
+
+#     buffer = io.BytesIO()
+#     buffer.write(html_content.encode('utf-8'))
+#     buffer.seek(0)
+
+#     return send_file(buffer, 
+#                      as_attachment=True, 
+#                      download_name='dashboard.html', 
+#                      mimetype='text/html')
 
 @views.route('/clear_dashboard', methods=['POST'])
 def clear_dashboard():
