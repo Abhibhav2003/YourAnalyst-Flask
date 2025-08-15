@@ -71,10 +71,8 @@ def display():
 @login_required
 def analyse():
     '''This function receives result from Gemini API'''
-
     if request.method == 'POST':
         selected_key = request.form.get("selected_table")
-        print(selected_key)
         if not selected_key:
             flash("Please select a table.", category="error")
             return redirect('/display')
@@ -83,7 +81,7 @@ def analyse():
         if not encoded_data:
             flash("No table data found in session", category="error")
             return redirect('/upload')
-        
+
         dfs = pickle.loads(base64.b64decode(encoded_data))
 
         if selected_key not in dfs:
@@ -102,7 +100,6 @@ def analyse():
 @views.route('/download_report', methods=['POST'])
 def download_report():
     '''This function lets the user download the analysis report'''
-
     response_text = request.form.get('response')
 
     if not response_text:
@@ -325,57 +322,6 @@ def download_dashboard():
         download_name='dashboard.html',
         mimetype='text/html'
     )
-# @views.route('/download_dashboard', methods=['GET'])
-# def download_dashboard():
-#     saved_charts = session.get('saved_charts')
-#     if not saved_charts:
-#         flash("No charts saved for dashboard.", category="error")
-#         return redirect('/manual-analysis')
-
-#     if isinstance(saved_charts, str):
-#         charts = pickle.loads(base64.b64decode(saved_charts))
-#     else:
-#         charts = saved_charts
-
-#     html_content = """
-#     <html>
-#     <head>
-#         <title>My Dashboard</title>
-#         <style>
-#             body { background-color: #121212; color: white; font-family: Arial; }
-#             .dashboard { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
-#             .chart { border: 2px solid #333; border-radius: 8px; padding: 10px; background: #1e1e1e; flex: 1 1 45%; }
-#             img { max-width: 100%; height: auto; border-radius: 5px; }
-#             h2 { text-align: center; }
-#         </style>
-#     </head>
-#     <body>
-#         <h1 style="text-align:center;">Dashboard</h1>
-#         <div class="dashboard">
-#     """
-
-#     for chart in charts:
-#         html_content += f"""
-#         <div class="chart">
-#             <h2>{chart['type']}</h2>
-#             {chart['html']}
-#         </div>
-#         """
-
-#     html_content += """
-#         </div>
-#     </body>
-#     </html>
-#     """
-
-#     buffer = io.BytesIO()
-#     buffer.write(html_content.encode('utf-8'))
-#     buffer.seek(0)
-
-#     return send_file(buffer, 
-#                      as_attachment=True, 
-#                      download_name='dashboard.html', 
-#                      mimetype='text/html')
 
 @views.route('/clear_dashboard', methods=['POST'])
 def clear_dashboard():
