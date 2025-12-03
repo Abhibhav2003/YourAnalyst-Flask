@@ -9,18 +9,18 @@ auth = Blueprint('auth',__name__)
 
 @auth.route('/login', methods=["GET", "POST"])
 def login():
-   if current_user.is_authenticated:
+   if current_user.is_authenticated: # if already logged in
         return redirect(url_for('views.home'))
-   if request.method == 'POST':
+   if request.method == 'POST': # form submission
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
         remember = request.form.get('remember')
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if user.username != username:
+        user = User.query.filter_by(email=email).first() # fetches user by email
+        if user: # if user exists
+            if user.username != username: # check username
                 flash('Incorrect Username', category='error')
-            elif check_password_hash(user.password, password):
+            elif check_password_hash(user.password, password): # check password
                 flash(f'Welcome, {user.username}', category='success')
                 if remember:
                   login_user(user,remember=True)
@@ -47,13 +47,13 @@ def signup():
 
        if user:
           flash('Email already exists',category='error')
-       if len(email) < 4:
+       if len(email) < 11:
           flash("Email must be greater than 4 characters",category="error")
        elif len(username) < 3:
           flash("Username must be greater than or equal to 3 characters",category="error")
        elif password != confirm_password:
           flash("Passwords don't match",category="error")
-       elif len(password) <= 8:
+       elif len(password) < 8:
           flash("Password must be of 8 characters",category="error")
        else:
           new_user = User(email=email,username=username,password=generate_password_hash(password,method='pbkdf2:sha256'))

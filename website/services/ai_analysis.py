@@ -1,5 +1,4 @@
 from google import genai
-from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 import os
@@ -10,7 +9,7 @@ key = os.getenv('G_SECRET_KEY')
 with open('website/services/system_instructions.txt', 'r', encoding='utf-8') as file:
     content = file.read()
 
-def enter_data(user_prompt,data):
+def enter_data(user_prompt,data): 
     client = genai.Client(api_key = key)
     prompt = f"{user_prompt} + {data}"
 
